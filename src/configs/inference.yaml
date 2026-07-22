@@ -1,0 +1,30 @@
+defaults:
+  - _self_
+
+seed: 42
+device: auto
+
+data:
+  root: data/LA/LA
+  protocol: ${data.root}/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt
+  audio: ${data.root}/ASVspoof2019_LA_eval/flac
+  extension: .flac
+  sample_rate: 16000
+  num_workers: 2
+  pin_memory: true
+  persistent_workers: true
+
+inference:
+  checkpoint: outputs/lfcc_lcnn_ce_seed42/best.pt
+  batch_size: 128
+  amp: false
+  output_path: vaputintseva.csv
+  compute_eer: true
+  per_attack_output: vaputintseva_per_attack_eer.csv
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  job:
+    chdir: false

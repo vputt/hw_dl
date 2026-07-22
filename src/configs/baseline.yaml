@@ -1,0 +1,82 @@
+defaults:
+  - _self_
+
+experiment:
+  name: lfcc_lcnn_ce_seed42
+
+seed: 42
+device: auto
+
+data:
+  root: data/LA/LA
+  train_protocol: ${data.root}/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.train.trn.txt
+  dev_protocol: ${data.root}/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt
+  eval_protocol: ${data.root}/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt
+  train_audio: ${data.root}/ASVspoof2019_LA_train/flac
+  dev_audio: ${data.root}/ASVspoof2019_LA_dev/flac
+  eval_audio: ${data.root}/ASVspoof2019_LA_eval/flac
+  extension: .flac
+  sample_rate: 16000
+  num_workers: 2
+  pin_memory: true
+  persistent_workers: true
+
+frontend:
+  sample_rate: ${data.sample_rate}
+  n_fft: 512
+  win_length: 320
+  hop_length: 160
+  num_filters: 20
+  num_ceps: 20
+  delta_window: 2
+  time_frames: 750
+  log_eps: 1.0e-12
+
+model:
+  feature_bins: 60
+  time_frames: ${frontend.time_frames}
+  num_classes: 2
+  dropout_p: 0.25
+
+optimizer:
+  lr: 3.0e-4
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  weight_decay: 0.0
+
+scheduler:
+  step_size: 10
+  gamma: 0.5
+
+trainer:
+  epochs: 20
+  batch_size: 64
+  eval_batch_size: 128
+  amp: true
+  eval_amp: false
+  monitor_eval: true
+  grad_clip_norm: null
+  log_interval: 50
+  output_dir: outputs/${experiment.name}
+  resume_from: null
+  save_every_epochs: 5
+
+debug:
+  deterministic: false
+  overfit_one_batch: false
+
+wandb:
+  enabled: true
+  project: voice-antispoofing
+  entity: null
+  run_name: ${experiment.name}
+  mode: online
+  artifact_name: lfcc-lcnn-ce-seed42-checkpoint
+  log_model_artifacts: true
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  job:
+    chdir: false
